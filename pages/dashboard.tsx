@@ -122,34 +122,45 @@ export default Dashboard;
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps({ req, res }) {
-    const session = getSession(req, res);
+    try {
+      const session = getSession(req, res);
 
-    if (!session) {
-      //
-    }
-
-    const userEmail = session?.user?.email as string;
-
-    const user = await prisma.user.findUnique({
-      where: {
-        email: userEmail
+      if (!session) {
+        // TODO: redirect to login page
       }
-    });
-    const userId = user?.id;
 
-    const tasks = await prisma.task.findMany({
-      where: {
-        authorId: userId
-      }
-    });
+      const userEmail = session?.user?.email as string;
 
-    return {
-      props: {
-        tasks: {
-          authorId: userId,
-          tasks: JSON.parse(JSON.stringify(tasks))
+      const user = await prisma.user.findUnique({
+        where: {
+          email: userEmail
         }
-      }
-    };
+      });
+      const userId = user?.id;
+
+      const tasks = await prisma.task.findMany({
+        where: {
+          authorId: userId
+        }
+      });
+
+      return {
+        props: {
+          tasks: {
+            authorId: userId,
+            tasks: JSON.parse(JSON.stringify(tasks))
+          }
+        }
+      };
+    } catch (error) {
+      return {
+        props: {
+          tasks: {
+            authorId: 1,
+            tasks: [{ id: 1, title: "", done: false, authorId: 1 }]
+          }
+        }
+      };
+    }
   }
 });
