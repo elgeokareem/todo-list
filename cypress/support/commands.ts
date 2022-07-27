@@ -35,13 +35,4 @@
 //     }
 //   }
 // }
-
-Cypress.Commands.add('login', () => {
-  const options = {
-    url: Cypress.env("AUTH0_BASE_URL"),
-    method: "POST",
-    headers: {
-      {'content-type': 'application/json'}
-    }
-  }
-}
+export default 1;
