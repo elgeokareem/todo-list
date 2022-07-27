@@ -43,17 +43,36 @@ const Dashboard: NextPage<InputProps> = ({ tasks }) => {
   return (
     <>
       <Navbar name={userName(user)} />
-      <Container>
-        <Box>
+      <Container
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        <Box
+          sx={{
+            width: "90%",
+            maxWidth: "500px"
+          }}
+        >
           <Typography variant="h2" mt={4}>
             Dashboard
           </Typography>
 
-          <Box mt={4}>
+          <Box
+            mt={4}
+            sx={{
+              display: "flex",
+              justifyContent: "center"
+            }}
+          >
             <Input
               onChange={e => {
                 setTask(e.target.value);
               }}
+              placeholder="Add a task"
             />
             <IconButton
               onClick={async () => {
@@ -73,16 +92,25 @@ const Dashboard: NextPage<InputProps> = ({ tasks }) => {
             </IconButton>
           </Box>
 
-          {tasks.tasks.map((task, index) => {
-            return (
-              <Todo
-                key={index}
-                id={task.id}
-                done={task.done}
-                title={task.title}
-              />
-            );
-          })}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            {tasks.tasks.map((task, index) => {
+              return (
+                <Todo
+                  key={index}
+                  id={task.id}
+                  done={task.done}
+                  title={task.title}
+                />
+              );
+            })}
+          </Box>
         </Box>
       </Container>
     </>

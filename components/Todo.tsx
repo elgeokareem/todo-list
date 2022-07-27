@@ -23,8 +23,7 @@ const styles = {
     padding: 10,
     display: "flex",
     alignItems: "center",
-    marginTop: 10,
-    width: 500
+    marginTop: 10
   }
 };
 
@@ -38,12 +37,17 @@ const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
 
   if (!edit) {
     return (
-      <Box>
+      <Box
+        sx={{
+          width: "100%"
+        }}
+      >
         <Paper
           elevation={2}
           style={styles.Paper}
           sx={{
-            backgroundColor: check ? "#f5f5f5" : "white"
+            backgroundColor: check ? "#f5f5f5" : "white",
+            width: "100%"
           }}
         >
           <span

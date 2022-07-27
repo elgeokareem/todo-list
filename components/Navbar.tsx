@@ -5,6 +5,8 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
+import NextLink from "next/link";
+import { Link as MUILink } from "@mui/material";
 
 export default function Navbar({ name }: { name: string }) {
   return (
@@ -23,7 +25,16 @@ export default function Navbar({ name }: { name: string }) {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {name}
           </Typography>
-          <Button color="inherit">Logout</Button>
+          <NextLink href="/api/auth/logout" passHref>
+            <MUILink
+              color="#fff"
+              sx={{
+                textDecoration: "none"
+              }}
+            >
+              LOGOUT
+            </MUILink>
+          </NextLink>
         </Toolbar>
       </AppBar>
     </Box>

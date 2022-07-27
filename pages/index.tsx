@@ -3,11 +3,7 @@ import type { NextPage } from "next";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Link from "../components/Link";
-import ProTip from "../components/ProTip";
-import Copyright from "../components/Copyright";
 import Login from "../components/login";
-import Logout from "../components/logout";
 
 const Home: NextPage = () => {
   return (
@@ -27,14 +23,13 @@ const Home: NextPage = () => {
         <Box
           sx={{
             display: "flex",
-            gap: 2
+            gap: 2,
+            mt: 4,
+            fontSize: "1.3rem"
           }}
         >
           <Login />
-          <Logout />
         </Box>
-        <ProTip />
-        <Copyright />
       </Box>
     </Container>
   );
