@@ -8,6 +8,7 @@
     "seed": "node prisma/seed.js",
     "start": "next start",
     "lint": "next lint",
+    "cypress": "cypress open",
     "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/node": "latest",
     "@types/react": "latest",
+    "cypress": "^10.3.1",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "typescript": "latest"
