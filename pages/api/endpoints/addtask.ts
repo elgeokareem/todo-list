@@ -6,7 +6,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log(req.body);
   const newTaskObject: AddTask = req.body;
 
   const newTask = await prisma.task.create({
@@ -17,5 +16,5 @@ export default async function handler(
 
   console.log("created successfully", newTask);
 
-  res.status(201);
+  res.status(201).send("Task created successfully");
 }
