@@ -6,14 +6,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log(req.body);
   const { email } = req.body as AddUser;
 
-  await prisma.user.create({
-    data: {
-      email: email
-    }
-  });
+  try {
+    await prisma.user.create({
+      data: {
+        email: email
+      }
+    });
 
-  res.status(200);
+    res.status(201).send("user created");
+  } catch (error) {
+    res.status(500).send(error);
+  }
 }

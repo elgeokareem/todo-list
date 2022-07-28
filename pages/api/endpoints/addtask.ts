@@ -8,13 +8,17 @@ export default async function handler(
 ) {
   const newTaskObject: AddTask = req.body;
 
-  const newTask = await prisma.task.create({
-    data: {
-      ...newTaskObject
-    }
-  });
+  try {
+    const newTask = await prisma.task.create({
+      data: {
+        ...newTaskObject
+      }
+    });
 
-  console.log("created successfully", newTask);
+    console.log("created successfully", newTask);
 
-  res.status(201).send("Task created successfully");
+    res.status(201).send("Task created successfully");
+  } catch (error) {
+    res.status(500).send(error);
+  }
 }
