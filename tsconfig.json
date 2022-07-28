@@ -16,6 +16,12 @@
     "jsxImportSource": "@emotion/react",
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "prisma/seed.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "prisma/seed.js",
+    "__tests__/api/adduser.test.js"
+  ],
   "exclude": ["node_modules"]
 }

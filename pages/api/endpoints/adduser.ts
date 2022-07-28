@@ -8,6 +8,11 @@ export default async function handler(
 ) {
   const { email } = req.body as AddUser;
 
+  if (!email) {
+    res.status(400).send("Email is required");
+    return;
+  }
+
   try {
     await prisma.user.create({
       data: {

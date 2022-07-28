@@ -74,6 +74,7 @@ const Dashboard: NextPage<InputProps> = ({ tasks }) => {
               }}
               placeholder="Add a task"
               value={task}
+              id="inputtask"
             />
             <IconButton
               onClick={async () => {
