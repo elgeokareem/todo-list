@@ -1,18 +1,11 @@
 import { Build, Delete } from "@mui/icons-material";
-import {
-  Box,
-  Checkbox,
-  Grid,
-  IconButton,
-  Paper,
-  Typography
-} from "@mui/material";
+import { Box, Checkbox, IconButton, Paper } from "@mui/material";
 import { NextPage } from "next";
 import { useState } from "react";
+import { useFetch } from "../hooks/useFetch";
 import EditTodo from "./EditTodo";
-import type { TodoProp } from "../types";
-import { useRouter } from "next/router";
 import axios from "axios";
+import type { GetDataServer, TodoProp } from "../types";
 
 const styles = {
   Icon: {
@@ -30,10 +23,7 @@ const styles = {
 const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
   const [check, setCheck] = useState(done);
   const [edit, setEdit] = useState(false);
-  const router = useRouter();
-  const refreshData = () => {
-    router.replace(router.asPath);
-  };
+  const { data, errorFetch, mutate } = useFetch();
 
   if (!edit) {
     return (
@@ -62,14 +52,25 @@ const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
             checked={check}
             style={{ marginLeft: "auto" }}
             onChange={async e => {
-              const res = await axios.patch(`api/endpoints/edittask/${id}`, {
+              const editedTodo = {
                 done: e.target.checked
-              });
+              };
 
-              // Request successful.
-              if (res.status < 300) {
+              await axios.patch(`api/endpoints/edittask/${id}`, editedTodo);
+
+              if (data) {
+                const newData: GetDataServer = {
+                  authorId: data.authorId,
+                  tasks: data.tasks.map(todo => {
+                    if (todo.id === id) {
+                      return { ...todo, done: e.target.checked };
+                    }
+
+                    return todo;
+                  })
+                };
+                mutate(newData);
                 setCheck(!e.target.checked);
-                refreshData();
               }
             }}
           />
@@ -89,7 +90,7 @@ const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
 
               // Request successful.
               if (res.status < 300) {
-                refreshData();
+                // refreshData();
               }
             }}
           >

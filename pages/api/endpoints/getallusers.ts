@@ -25,7 +25,12 @@ export default withApiAuthRequired(async function handler(
         email: userEmail
       }
     });
-    const userId = user?.id;
+
+    if (!user) {
+      return res.status(401).send("No user");
+    }
+
+    const userId = user.id;
 
     const tasks = await prisma.task.findMany({
       where: {

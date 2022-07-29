@@ -20,11 +20,9 @@ export interface User {
   sub: string;
 }
 
-export interface GetData {
-  tasks: {
-    authorId: number;
-    tasks: Task[];
-  };
+export interface GetDataServer {
+  authorId: number;
+  tasks: Task[];
 }
 
 export interface AddUser {
