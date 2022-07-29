@@ -1,48 +1,63 @@
 import { useState } from "react";
-import {
-  withPageAuthRequired,
-  useUser,
-  UserProfile,
-  getSession
-} from "@auth0/nextjs-auth0";
 import { Box, Container, IconButton, Input, Typography } from "@mui/material";
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import Navbar from "../components/Navbar";
 import Todo from "../components/Todo";
 import AddIcon from "@mui/icons-material/Add";
-import prisma from "../lib/prisma";
+import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
-import type { InputProps } from "../types";
+import useSWR from "swr";
 
-function userName(userObject: UserProfile | undefined) {
-  if (userObject) {
-    if (userObject.nickname) {
-      return userObject.nickname;
-    }
-  }
-  return "";
-}
-
-const Dashboard: NextPage<InputProps> = ({ tasks }) => {
+const Dashboard: NextPage = () => {
   const [task, setTask] = useState("");
-  const { user, error, isLoading } = useUser();
-  const router = useRouter();
-  const refreshData = () => {
-    router.replace(router.asPath);
-  };
+  const [todos, setTodos] = useState<any[]>([]);
+  const [authorId, setAuthorId] = useState<number | null>(null);
+
+  const { user, isAuthenticated, isLoading, getAccessTokenSilently } =
+    useAuth0();
+
+  const { data, error } = useSWR(
+    isLoading || !isAuthenticated
+      ? null
+      : "http://localhost:3000/api/endpoints/getallusers",
+    async url => {
+      const accessToken = await getAccessTokenSilently();
+      const res = await axios.get<{ authorId: string; tasks: any[] }>(url, {
+        headers: {
+          authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      setTodos(res.data.tasks);
+      setAuthorId(Number(res.data.authorId));
+      return res.data;
+    }
+  );
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <div>Loading your user information...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <div>You must first sign in to access your subscriptions.</div>;
   }
 
   if (error) {
-    return <p>Error: {error.message}</p>;
+    return <div>There was an error loading your subscriptions.</div>;
+  }
+
+  if (!data) {
+    return (
+      <div>
+        <h1>Subscriptions for {user?.email}</h1>
+        <div>Loading your subscriptions ...</div>
+      </div>
+    );
   }
 
   return (
     <>
-      <Navbar name={userName(user)} />
+      <Navbar name={user?.name ? user.name : ""} />
       <Container
         sx={{
           display: "flex",
@@ -80,12 +95,10 @@ const Dashboard: NextPage<InputProps> = ({ tasks }) => {
               onClick={async () => {
                 const res = await axios.post(`api/endpoints/addtask`, {
                   title: task,
-                  authorId: tasks.authorId
+                  authorId
                 });
-
                 // Request successful.
                 if (res.status < 300) {
-                  refreshData();
                   setTask("");
                 }
               }}
@@ -102,13 +115,13 @@ const Dashboard: NextPage<InputProps> = ({ tasks }) => {
               justifyContent: "center"
             }}
           >
-            {tasks.tasks.map((task, index) => {
+            {todos.map((todo, index) => {
               return (
                 <Todo
                   key={index}
-                  id={task.id}
-                  done={task.done}
-                  title={task.title}
+                  id={todo.id}
+                  done={todo.done}
+                  title={todo.title}
                 />
               );
             })}
@@ -120,48 +133,3 @@ const Dashboard: NextPage<InputProps> = ({ tasks }) => {
 };
 
 export default Dashboard;
-
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps({ req, res }) {
-    try {
-      const session = getSession(req, res);
-
-      if (!session) {
-        // TODO: redirect to login page
-      }
-
-      const userEmail = session?.user?.email as string;
-
-      const user = await prisma.user.findUnique({
-        where: {
-          email: userEmail
-        }
-      });
-      const userId = user?.id;
-
-      const tasks = await prisma.task.findMany({
-        where: {
-          authorId: userId
-        }
-      });
-
-      return {
-        props: {
-          tasks: {
-            authorId: userId,
-            tasks: JSON.parse(JSON.stringify(tasks))
-          }
-        }
-      };
-    } catch (error) {
-      return {
-        props: {
-          tasks: {
-            authorId: 1,
-            tasks: [{ id: 1, title: "", done: false, authorId: 1 }]
-          }
-        }
-      };
-    }
-  }
-});
