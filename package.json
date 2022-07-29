@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "cypress": "cypress open",
-    "test": "jest --watch",
+    "test": "jest --watchAll",
     "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
   },
   "dependencies": {

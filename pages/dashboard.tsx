@@ -23,7 +23,6 @@ const Dashboard: NextPage = () => {
   const { user, error: errorUser, isLoading } = useUser();
 
   const { data, isLoadingData, errorFetch, mutate } = useFetch(isLoading);
-  console.log({ data });
 
   if (isLoading) {
     return (

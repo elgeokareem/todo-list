@@ -31,11 +31,8 @@ export default withApiAuthRequired(async function handler(
       }
     });
 
-    console.log("updated successfully", newTask);
-
     res.status(200).send("updated successfully");
   } catch (error) {
-    console.log("error in update", error);
     res.status(500).send("Error in update");
   }
 });
