@@ -9,6 +9,7 @@ export default async function handler(
   const { email } = req.body as AddUser;
 
   if (!email) {
+    // TODO: Check valid email
     res.status(400).send("Email is required");
     return;
   }

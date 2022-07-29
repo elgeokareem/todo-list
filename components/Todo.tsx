@@ -3,9 +3,10 @@ import { Box, Checkbox, IconButton, Paper } from "@mui/material";
 import { NextPage } from "next";
 import { useState } from "react";
 import { useFetch } from "../hooks/useFetch";
+import { deleteTodo, editTodo } from "../utils/fetchUtils";
 import EditTodo from "./EditTodo";
 import axios from "axios";
-import type { GetDataServer, TodoProp } from "../types";
+import type { TodoProp } from "../types";
 
 const styles = {
   Icon: {
@@ -21,7 +22,6 @@ const styles = {
 };
 
 const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
-  const [check, setCheck] = useState(done);
   const [edit, setEdit] = useState(false);
   const { data, errorFetch, mutate } = useFetch();
 
@@ -36,41 +36,34 @@ const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
           elevation={2}
           style={styles.Paper}
           sx={{
-            backgroundColor: check ? "#f5f5f5" : "white",
+            backgroundColor: done ? "#f5f5f5" : "white",
             width: "100%"
           }}
         >
           <span
             style={{
-              textDecoration: check ? "line-through" : "none"
+              textDecoration: done ? "line-through" : "none"
             }}
           >
             {title}
           </span>
 
           <Checkbox
-            checked={check}
+            checked={done}
             style={{ marginLeft: "auto" }}
             onChange={async e => {
               const editedTodo = {
                 done: e.target.checked
               };
 
-              await axios.patch(`api/endpoints/edittask/${id}`, editedTodo);
+              axios.patch(`api/endpoints/edittask/${id}`, editedTodo);
 
               if (data) {
-                const newData: GetDataServer = {
-                  authorId: data.authorId,
-                  tasks: data.tasks.map(todo => {
-                    if (todo.id === id) {
-                      return { ...todo, done: e.target.checked };
-                    }
-
-                    return todo;
-                  })
-                };
-                mutate(newData);
-                setCheck(!e.target.checked);
+                mutate(editTodo(data, { id, done: e.target.checked }), {
+                  rollbackOnError: true,
+                  populateCache: true,
+                  revalidate: false
+                });
               }
             }}
           />
@@ -86,11 +79,14 @@ const Todo: NextPage<TodoProp> = ({ id, done, title }) => {
             aria-label="Delete"
             onClick={async e => {
               e.preventDefault();
-              const res = await axios.delete(`api/endpoints/deletetask/${id}`);
+              axios.delete(`api/endpoints/deletetask/${id}`);
 
-              // Request successful.
-              if (res.status < 300) {
-                // refreshData();
+              if (data) {
+                mutate(deleteTodo(data, id), {
+                  rollbackOnError: true,
+                  populateCache: true,
+                  revalidate: false
+                });
               }
             }}
           >

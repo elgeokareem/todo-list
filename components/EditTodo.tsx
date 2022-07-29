@@ -1,10 +1,11 @@
 import { Save } from "@mui/icons-material";
-import { Box, Grid, IconButton, Input, Paper } from "@mui/material";
+import { Box, IconButton, Input, Paper } from "@mui/material";
 import axios from "axios";
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { TodoPropEdit } from "../types";
+import { useFetch } from "../hooks/useFetch";
+import { editTodo } from "../utils/fetchUtils";
 
 const styles = {
   Icon: {
@@ -22,10 +23,7 @@ const styles = {
 
 const EditTodo: NextPage<TodoPropEdit> = ({ id, done, title, setEdit }) => {
   const [titleEdit, setTitleEdit] = useState(title);
-  const router = useRouter();
-  const refreshData = () => {
-    router.replace(router.asPath);
-  };
+  const { data, errorFetch, mutate } = useFetch();
 
   return (
     <Box>
@@ -50,16 +48,20 @@ const EditTodo: NextPage<TodoPropEdit> = ({ id, done, title, setEdit }) => {
             aria-label="Add"
             onClick={async e => {
               e.preventDefault();
-              const res = await axios.patch(`api/endpoints/edittask/${id}`, {
+              axios.patch(`api/endpoints/edittask/${id}`, {
                 title: titleEdit
               });
 
-              // Request successful.
-              if (res.status < 300) {
-                setTitleEdit("");
-                setEdit(false);
-                refreshData();
+              if (data) {
+                mutate(editTodo(data, { id, title: titleEdit }), {
+                  rollbackOnError: true,
+                  populateCache: true,
+                  revalidate: false
+                });
               }
+
+              setTitleEdit("");
+              setEdit(false);
             }}
           >
             <Save fontSize="small" />

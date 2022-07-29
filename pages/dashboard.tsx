@@ -7,14 +7,15 @@ import {
   Input,
   Typography
 } from "@mui/material";
-import { NextPage } from "next";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Todo from "../components/Todo";
 import AddIcon from "@mui/icons-material/Add";
+import { NextPage } from "next";
 import { useUser } from "@auth0/nextjs-auth0";
-import { GetDataServer, Task } from "../types";
-import axios from "axios";
 import { useFetch } from "../hooks/useFetch";
+import { addTodo } from "../utils/fetchUtils";
+import type { GetDataServer, Task } from "../types";
 
 const Dashboard: NextPage = () => {
   const [task, setTask] = useState("");
@@ -22,6 +23,7 @@ const Dashboard: NextPage = () => {
   const { user, error: errorUser, isLoading } = useUser();
 
   const { data, isLoadingData, errorFetch, mutate } = useFetch(isLoading);
+  console.log({ data });
 
   if (isLoading) {
     return (
@@ -86,14 +88,14 @@ const Dashboard: NextPage = () => {
                     authorId: data?.authorId
                   } as any as Task;
 
-                  await axios.post(`api/endpoints/addtask`, newTodo);
+                  axios.post(`api/endpoints/addtask`, newTodo);
 
                   if (data) {
-                    const newData: GetDataServer = {
-                      authorId: data.authorId,
-                      tasks: [...data.tasks, newTodo]
-                    };
-                    mutate(newData);
+                    mutate(addTodo(data, newTodo), {
+                      rollbackOnError: true,
+                      populateCache: true,
+                      revalidate: false
+                    });
                   }
 
                   setTask("");
