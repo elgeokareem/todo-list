@@ -1,32 +1,32 @@
 import { useState } from "react";
-import { Box, Container, IconButton, Input, Typography } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  IconButton,
+  Input,
+  Typography
+} from "@mui/material";
 import { NextPage } from "next";
 import Navbar from "../components/Navbar";
 import Todo from "../components/Todo";
 import AddIcon from "@mui/icons-material/Add";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useUser } from "@auth0/nextjs-auth0";
+import { Task } from "../types";
 import axios from "axios";
 import useSWR from "swr";
 
 const Dashboard: NextPage = () => {
   const [task, setTask] = useState("");
-  const [todos, setTodos] = useState<any[]>([]);
+  const [todos, setTodos] = useState<Task[]>([]);
   const [authorId, setAuthorId] = useState<number | null>(null);
 
-  const { user, isAuthenticated, isLoading, getAccessTokenSilently } =
-    useAuth0();
+  const { user, error: errorUser, isLoading } = useUser();
 
   const { data, error } = useSWR(
-    isLoading || !isAuthenticated
-      ? null
-      : "http://localhost:3000/api/endpoints/getallusers",
+    isLoading ? null : "api/endpoints/getallusers",
     async url => {
-      const accessToken = await getAccessTokenSilently();
-      const res = await axios.get<{ authorId: string; tasks: any[] }>(url, {
-        headers: {
-          authorization: `Bearer ${accessToken}`
-        }
-      });
+      const res = await axios.get<{ authorId: string; tasks: any[] }>(url);
 
       setTodos(res.data.tasks);
       setAuthorId(Number(res.data.authorId));
@@ -35,24 +35,22 @@ const Dashboard: NextPage = () => {
   );
 
   if (isLoading) {
-    return <div>Loading your user information...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return <div>You must first sign in to access your subscriptions.</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "2rem"
+        }}
+      >
+        <CircularProgress size="100px" />
+      </Box>
+    );
   }
 
   if (error) {
-    return <div>There was an error loading your subscriptions.</div>;
-  }
-
-  if (!data) {
-    return (
-      <div>
-        <h1>Subscriptions for {user?.email}</h1>
-        <div>Loading your subscriptions ...</div>
-      </div>
-    );
+    return <div>There was an error loading your tasks.</div>;
   }
 
   return (
@@ -93,13 +91,13 @@ const Dashboard: NextPage = () => {
             />
             <IconButton
               onClick={async () => {
-                const res = await axios.post(`api/endpoints/addtask`, {
-                  title: task,
-                  authorId
-                });
-                // Request successful.
-                if (res.status < 300) {
-                  setTask("");
+                try {
+                  await axios.post(`api/endpoints/addtask`, {
+                    title: task,
+                    authorId
+                  });
+                } catch (error) {
+                  // toast
                 }
               }}
             >

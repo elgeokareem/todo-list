@@ -13,7 +13,6 @@
     "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^1.10.2",
     "@auth0/nextjs-auth0": "^1.9.1",
     "@emotion/cache": "latest",
     "@emotion/react": "latest",

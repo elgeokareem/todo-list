@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-export interface Tasks {
+export interface Task {
   id: number;
   createdAt: string;
   updatedAt: string;
@@ -10,19 +10,20 @@ export interface Tasks {
   authorId: number;
 }
 
-export interface InputProps {
+export interface User {
+  nickname: string;
+  name: string;
+  picture: string;
+  updated_at: string | Date;
+  email: string;
+  email_verified: boolean;
+  sub: string;
+}
+
+export interface GetData {
   tasks: {
     authorId: number;
-    tasks: Tasks[];
-  };
-  user: {
-    nickname: string;
-    name: string;
-    picture: string;
-    updated_at: string | Date;
-    email: string;
-    email_verified: boolean;
-    sub: string;
+    tasks: Task[];
   };
 }
 
